@@ -3,5 +3,5 @@ keras
 tensorflow
 numpy
 pandas
-open-cv python
 scikit-learn
+opencv-python
