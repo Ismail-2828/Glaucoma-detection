@@ -4,4 +4,4 @@ tensorflow
 numpy
 pandas
 scikit-learn
-opencv-python
+opencv-python-headless
