@@ -13,9 +13,9 @@ model = load_model(model_path)
 def preprocess_image(image_path):
     image = cv2.imread(image_path)
     if image is not None:
-        image = cv2.resize(image, (224, 224))  
-        image = np.expand_dims(image, axis=0)  
-        image = preprocess_input(image)  
+        image = cv2.resize(image, (224, 224))
+        image = np.expand_dims(image, axis=0)
+        image = preprocess_input(image)
     return image
 
 def predict(image_path):
@@ -24,29 +24,60 @@ def predict(image_path):
     return prediction
 
 def main():
-    st.title('Glaucoma Detection')
-    st.write("Upload an image of the eye for glaucoma detection.")
+    st.markdown(
+        """
+        <style>
+        .centered-title {
+            text-align: center;
+            border: 2px solid blue;
+            padding: 6px;
+            border-radius: 10px;
+        }
+        .custom-header {
+            text-align: center;
+        }
+        .prediction-button {
+            display: inline-block;
+            padding: 10px;
+            color: white;
+            background-color: blue;
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            margin: 20px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    st.markdown('<h1 class="centered-title">Glaucoma Detection System</h1>', unsafe_allow_html=True)
+    st.write("<div class='custom-header'>Upload an image of the eye for glaucoma testing.</div>", unsafe_allow_html=True)
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
     if uploaded_file is not None:
-        image = Image.open(uploaded_file)
-        st.image(image, caption='Uploaded Image.', use_column_width=False)
+        col1, col2 = st.columns([2, 1])
+        with col1:
+            image = Image.open(uploaded_file)
+            st.image(image, caption='Uploaded Image.', use_column_width=False)
 
-        
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp_file:
-            image.save(temp_file, format='JPEG')
-            temp_path = temp_file.name
-        
-        if st.button('Predict'):
-            st.write("Predicting...")
-            prediction = predict(temp_path)
-            prediction_label = "Glaucoma" if prediction[0] > 0.5 else "Normal"
-            st.write(f'Prediction: {prediction_label}')
-            st.write(f'Confidence: {prediction[0][0]:.2f}' if prediction[0][0] > 0.5 else f'Confidence: {1 - prediction[0][0]:.2f}')
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp_file:
+                image.save(temp_file, format='JPEG')
+                temp_path = temp_file.name
 
-        
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
+            if st.button('Predict'):
+                st.write("Predicting...")
+                prediction = predict(temp_path)
+                prediction_label = "Glaucoma" if prediction[0] > 0.5 else "Normal"
+                confidence = prediction[0][0] if prediction[0][0] > 0.5 else 1 - prediction[0][0]
+                
+                with col2:
+                    st.markdown(f'<div class="prediction-button">PREDICTION | {prediction_label}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="prediction-button">CONFIDENCE | {confidence:.2f}</div>', unsafe_allow_html=True)
+
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
 
 if __name__ == '__main__':
     main()
