@@ -1,15 +1,16 @@
 import streamlit as st
 import numpy as np
 import cv2
-from PIL import Image
 from keras.models import load_model
 from keras.applications.densenet import preprocess_input
 import tempfile
 import os
 
+# Load the model
 model_path = r"model/model_final_densenet.h5"
 model = load_model(model_path)
 
+# Define functions
 def preprocess_image(image_path):
     image = cv2.imread(image_path)
     if image is not None:
@@ -23,6 +24,7 @@ def predict(image_path):
     prediction = model.predict(processed_image)
     return prediction
 
+# Main app
 def main():
     st.markdown(
         """
@@ -53,18 +55,18 @@ def main():
     )
     
     st.markdown('<h1 class="centered-title">Glaucoma Detection System</h1>', unsafe_allow_html=True)
-    st.write("<div class='custom-header'>Upload an image of the eye for glaucoma testing.</div>", unsafe_allow_html=True)
+    st.write("<div class='custom-header'><i>Upload an image of the eye for glaucoma testing.</i></div>", unsafe_allow_html=True)
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
     if uploaded_file is not None:
         col1, col2 = st.columns([2, 1])
         with col1:
-            image = Image.open(uploaded_file)
-            st.image(image, caption='Uploaded Image.', use_column_width=False)
-
             with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp_file:
-                image.save(temp_file, format='JPEG')
+                temp_file.write(uploaded_file.read())
                 temp_path = temp_file.name
+
+            image = cv2.imread(temp_path)
+            st.image(cv2.cvtColor(image, cv2.COLOR_BGR2RGB), caption='Uploaded Image.', use_column_width=False)
 
             if st.button('Predict'):
                 st.write("Predicting...")
