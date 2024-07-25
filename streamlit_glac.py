@@ -6,11 +6,9 @@ from keras.applications.densenet import preprocess_input
 import tempfile
 import os
 
-# Load the model
-model_path = r"model/model_final_densenet.h5"
+model_path = r"model/model_final3_densenet.h5"
 model = load_model(model_path)
 
-# Define functions
 def preprocess_image(image_path):
     image = cv2.imread(image_path)
     if image is not None:
@@ -24,7 +22,6 @@ def predict(image_path):
     prediction = model.predict(processed_image)
     return prediction
 
-# Main app
 def main():
     st.markdown(
         """
