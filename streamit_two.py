@@ -124,6 +124,7 @@ def patient_info():
 
     patient_name = st.text_input("Patient Name", key="unique_patient_name_input")
     age = st.number_input("Age", min_value=0, max_value=120, step=1, key="unique_age_input")
+    last_eye_check = st.date_input("Last Eye Check", key="unique_last_eye_check_input")
     family_history = st.text_area("Family Disorder", placeholder="e.g., Glaucoma, Diabetes, Hypertension", key="unique_family_history_input")
     symptoms = st.text_area("Symptoms", placeholder="e.g., Blurred vision, Eye pain, Headaches", key="unique_symptoms_input")
 
@@ -131,6 +132,7 @@ def patient_info():
         st.write("### Submitted Information")
         st.write(f"**Name:** {patient_name}")
         st.write(f"**Age:** {age}")
+        st.write(f"**Last Eye Check:** {last_eye_check}")
         st.write(f"**Family History:** {family_history}")
         st.write(f"**Symptoms:** {symptoms}")
 
@@ -138,6 +140,7 @@ def patient_info():
             "Timestamp": [datetime.now()],
             "Name": [patient_name],
             "Age": [age],
+            "Last Eye Check": [last_eye_check],
             "Family History": [family_history],
             "Symptoms": [symptoms],
             "Prediction": [""],   
@@ -154,7 +157,7 @@ def patient_info():
 
 def results():
     if not st.session_state.get("patient_info_submitted", False):
-        st.warning("Go back and Fill the patient form!")
+        st.warning("Please return and complete the patient form!")
         return
     
     def preprocess_image(image_path):
@@ -188,6 +191,10 @@ def results():
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+            }
+            .image-container {
+                display: flex;
+                justify-content: center;
             }
             .button-container {
                 display: flex;
@@ -231,15 +238,15 @@ def results():
                     prediction, processed_image = predict(temp_path)
                     prediction_label = "Glaucoma" if prediction[0] > 0.5 else "Normal"
                     confidence = prediction[0][0] if prediction[0][0] > 0.5 else 1 - prediction[0][0]
-                    st.markdown('<div class="button-container">', unsafe_allow_html=True) 
-                    st.markdown(f'<div class="prediction-button">PREDICTION | {prediction_label}</div>', unsafe_allow_html=True)
-                    st.markdown(f'<div class="prediction-button">CONFIDENCE | {confidence:.2f}</div>', unsafe_allow_html=True)
-                    st.markdown('</div>', unsafe_allow_html=True) 
-                    
+                    st.write('<div class="button-container">', unsafe_allow_html=True)
+                    st.markdown(f'<div class="custom-button">PREDICTION | {prediction_label}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="custom-button">CONFIDENCE | {confidence:.2f}</div>', unsafe_allow_html=True)
+                    st.write('</div>', unsafe_allow_html=True)
+
                     if prediction_label == "Normal":
-                        st.markdown('<h1 class="Normal-title" style="color: blue;">Congratulations!</h1>', unsafe_allow_html=True)
+                        st.markdown('<h1 class="Normal-title" style="color: blue;">Congratulations, No Glaucoma detected!</h1>', unsafe_allow_html=True)
                     else:
-                        st.markdown('<h1 class="Glaucoma-title"> style="color: red;">Consult Opthalmologist!</h1>', unsafe_allow_html=True)
+                        st.markdown('<h1 class="Glaucoma-title" style="color: red;">Glaucoma detected, Consult Opthalmologist!</h1>', unsafe_allow_html=True)
                     
                     if os.path.isfile(file_path):
                         df = load_patient_data(file_path)
