@@ -124,7 +124,7 @@ def patient_info():
 
     patient_name = st.text_input("Patient Name", key="unique_patient_name_input")
     age = st.number_input("Age", min_value=0, max_value=120, step=1, key="unique_age_input")
-    family_history = st.text_area("Family History", placeholder="e.g., Glaucoma, Diabetes, Hypertension", key="unique_family_history_input")
+    family_history = st.text_area("Family Disorder", placeholder="e.g., Glaucoma, Diabetes, Hypertension", key="unique_family_history_input")
     symptoms = st.text_area("Symptoms", placeholder="e.g., Blurred vision, Eye pain, Headaches", key="unique_symptoms_input")
 
     if st.button("Submit Information", key="unique_submit_info_button"):
@@ -154,7 +154,7 @@ def patient_info():
 
 def results():
     if not st.session_state.get("patient_info_submitted", False):
-        st.warning("Go back and Fill the patient form.")
+        st.warning("Go back and Fill the patient form!")
         return
     
     def preprocess_image(image_path):
@@ -170,78 +170,94 @@ def results():
         processed_image = preprocess_image(image_path)
         prediction = model.predict(processed_image)
         return prediction, processed_image
+    
+    def main():
+        st.markdown(
+            """
+            <style>
+            .centered-title {
+                text-align: center;
+                border: 2px solid blue;
+                padding: 6px;
+                border-radius: 10px;
+            }
+            .custom-header {
+                text-align: center;
+            }
+            .centered-content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .button-container {
+                display: flex;
+                justify-content: space-around;
+                width: 50%;
+            }
+            .custom-button {
+                padding: 10px;
+                color: white;
+                background-color: blue;
+                border: none;
+                border-radius: 5px;
+                text-align: center;
+                text-decoration: none;
+                margin: 10px;
+                flex: 1;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
 
-    st.markdown(
-        """
-        <style>
-        .centered-title {
-            text-align: center;
-            border: 2px solid blue;
-            padding: 6px;
-            border-radius: 10px;
-        }
-        .custom-header {
-            text-align: center;
-        }
-        .prediction-button {
-            display: inline-block;
-            padding: 10px;
-            color: white;
-            background-color: blue;
-            border: none;
-            border-radius: 5px;
-            text-align: center;
-            text-decoration: none;
-            margin: 20px;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+        st.markdown('<h1 class="centered-title">Glaucoma Detection System</h1>', unsafe_allow_html=True)
+        st.write("<div class='custom-header'><i>Upload an image of the eye for glaucoma testing.</i></div>", unsafe_allow_html=True)
+        uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+        
 
-    st.markdown('<h1 class="centered-title">Glaucoma Detection System</h1>', unsafe_allow_html=True)
-    st.write("<div class='custom-header'><i>Upload an image of the eye for glaucoma testing.</i></div>", unsafe_allow_html=True)
-    uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+        if uploaded_file is not None:
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp_file:
+                    temp_file.write(uploaded_file.read())
+                    temp_path = temp_file.name
 
-    if uploaded_file is not None:
-        col1, col2 = st.columns([2, 1])
-        with col1:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp_file:
-                temp_file.write(uploaded_file.read())
-                temp_path = temp_file.name
+                image = cv2.imread(temp_path)
+                st.markdown('<div class="image-container">', unsafe_allow_html=True)  
+                st.image(cv2.cvtColor(image, cv2.COLOR_BGR2RGB), caption='Uploaded Image.', use_column_width=False)
+                st.markdown('</div>', unsafe_allow_html=True)  
 
-            image = cv2.imread(temp_path)
-            st.image(cv2.cvtColor(image, cv2.COLOR_BGR2RGB), caption='Uploaded Image.', use_column_width=False)
 
-            if st.button('Predict'):
-                st.write("Predicting...")
-                prediction, processed_image = predict(temp_path)
-                prediction_label = "Glaucoma" if prediction[0] > 0.5 else "Normal"
-                confidence = prediction[0][0] if prediction[0][0] > 0.5 else 1 - prediction[0][0]
-                if prediction_label == "Normal":
-                    st.markdown('<h1 class="Normal-title">Congratulations!</h1>', unsafe_allow_html=True)
-                else:
-                    st.markdown('<h1 class="Glaucoma-title"> Consult Opthalmologist </h1>', unsafe_allow_html=True)
-                with col2:
+                if st.button('Predict'):
+                    st.write("Predicting...")
+                    prediction, processed_image = predict(temp_path)
+                    prediction_label = "Glaucoma" if prediction[0] > 0.5 else "Normal"
+                    confidence = prediction[0][0] if prediction[0][0] > 0.5 else 1 - prediction[0][0]
+                    st.markdown('<div class="button-container">', unsafe_allow_html=True) 
                     st.markdown(f'<div class="prediction-button">PREDICTION | {prediction_label}</div>', unsafe_allow_html=True)
                     st.markdown(f'<div class="prediction-button">CONFIDENCE | {confidence:.2f}</div>', unsafe_allow_html=True)
-                
-                if os.path.isfile(file_path):
-                    df = load_patient_data(file_path)
-                    last_entry_index = df.index[-1]
-                    df.loc[last_entry_index, "Prediction"] = prediction_label
-                    df.loc[last_entry_index, "Confidence_Score"] = f"{confidence * 100:.2f}"
-                    df.to_csv(file_path, index=False)
+                    st.markdown('</div>', unsafe_allow_html=True) 
+                    
+                    if prediction_label == "Normal":
+                        st.markdown('<h1 class="Normal-title" style="color: blue;">Congratulations!</h1>', unsafe_allow_html=True)
+                    else:
+                        st.markdown('<h1 class="Glaucoma-title"> style="color: red;">Consult Opthalmologist!</h1>', unsafe_allow_html=True)
+                    
+                    if os.path.isfile(file_path):
+                        df = load_patient_data(file_path)
+                        last_entry_index = df.index[-1]
+                        df.loc[last_entry_index, "Prediction"] = prediction_label
+                        df.loc[last_entry_index, "Confidence_Score"] = f"{confidence * 100:.2f}"
+                        df.to_csv(file_path, index=False)
 
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
-    
-    if st.button('Download Patient Data'):
-        patient_data = load_patient_data(file_path)
-        csv = patient_data.to_csv(index=False)
-        b64 = base64.b64encode(csv.encode()).decode()  
-        href = f'<a href="data:file/csv;base64,{b64}" download="patient_data.csv">Download CSV File</a>'
-        st.markdown(href, unsafe_allow_html=True)
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
+        
+        if st.button('Download Patient Data'):
+            patient_data = load_patient_data(file_path)
+            csv = patient_data.to_csv(index=False)
+            b64 = base64.b64encode(csv.encode()).decode()  
+            href = f'<a href="data:file/csv;base64,{b64}" download="patient_data.csv">Download CSV File</a>'
+            st.markdown(href, unsafe_allow_html=True)
+    main()
 
 if "password_entered" not in st.session_state:
     st.session_state["password_entered"] = False
@@ -253,12 +269,12 @@ if not st.session_state["password_entered"]:
     password_check()
 else:
     st.sidebar.title("Navigation")
-    menu = ["Home", "Patient Info", "Results"]
+    menu = ["Home", "Patient Form", "Diagnosis"]
     choice = st.sidebar.radio("Go to", menu)
 
     if choice == "Home":
         home()
-    elif choice == "Patient Info":
+    elif choice == "Patient Form":
         patient_info()
-    elif choice == "Results":
+    elif choice == "Diagnosis":
         results()
