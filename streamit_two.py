@@ -72,31 +72,109 @@ def password_check():
 
 def home():
     set_background("eye_check.jpg") 
-    st.title("Glaucoma Information")
+    st.markdown(
+            """
+            <style>
+            .glaucoma-title {
+                text-align: center;
+                font-weight: bold;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+    st.markdown('<h1 class="glaucoma-title">GLAUCOMA</h1>', unsafe_allow_html=True)
 
-    menu = ["About Glaucoma", "Causes", "Risk Factor"]
+    menu = ["About Glaucoma", "Risk Factor", "Treatment"]
     choice = st.radio("Select a topic:", menu, horizontal=True)
+    
+    st.markdown("""
+        <style>
+        .stRadio > div {
+            display: flex;
+            flex-direction: row;
+        }
+        .stRadio > div > label {
+            margin-right: 110px; 
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
     if choice == "About Glaucoma":
         st.header("What Is Glaucoma?")
-        st.write("""
-        Glaucoma is a condition that damages your eye's optic nerve, and it gets worse over time. It's often linked to a buildup of pressure inside your eye. Glaucoma tends to run in families. You usually don’t get it until later in life.
+        st.markdown("""
+            <style>
+            .justified-text {
+                text-align: justify;
+                font-weight: bold;
+            }
+            </style>
+        """, unsafe_allow_html=True)
 
-        The increased pressure in your eye, called intraocular pressure, can damage your optic nerve that sends images to your brain. If the damage worsens, glaucoma can cause permanent vision loss or even total blindness within a few years.
-        """)
+        st.markdown("""
+            <div class="justified-text">
+                Glaucoma, a leading cause of blindness in the world, is a group of ocular 
+                pathologies which progressively damages the optic nerve of the eye, the 
+                nerve that transmit visual impulses to and from the brain. 
+                It is a group of degenerative eye disorders typically associated with 
+                increase in the intraocular pressure  against the eye walls, thereby 
+                damaging the optic nerve head and affecting the visual field.
+            </div>
+        """, unsafe_allow_html=True)
+        
+        st.header("Types of Glaucoma")
+        st.markdown("""
+            <style>
+            .justified-text-types {
+                text-align: justify;
+                font-weight: bold;
+            }
+            </style>
+        """, unsafe_allow_html=True)
 
-    elif choice == "Causes":
-        st.header("Glaucoma Causes")
-        st.write("""
-        The fluid inside your eye, called aqueous humor, usually flows out of your eye through a mesh-like channel. If this channel gets blocked or the eye is producing too much fluid, the liquid builds up. Sometimes, experts don’t know what causes this blockage, but it can be inherited, meaning it’s passed from parents to children.
-
-        Less-common causes of glaucoma include a blunt or chemical injury to your eye, severe eye infection, blocked blood vessels inside your eye, and inflammatory conditions. It’s rare, but eye surgery to correct another condition can sometimes bring it on. It usually affects both eyes, but it may be worse in one than the other.
-        """)
-
+        st.markdown("""
+            <div class="justified-text-types">
+                The two types of glaucoma are the primary open-angle glaucoma (POAG) 
+                and the angle closure glaucoma. While both pose serious threat on 
+                ocular health, the primary open-angle glaucoma is often asymptomatic 
+                in its early stage, until severe, more significant and often times 
+                irreversible damage is done to the eye. The angle closure glaucoma, 
+                on the other hand can be sudden, more severe and painful, as as a 
+                result of rapid surge or increase in intraocular pressure of the eye.
+                The problem of glaucoma is one of the most concerning issues in public health.
+            </div>
+        """, unsafe_allow_html=True)
+        
     elif choice == "Risk Factor":
         st.header("Glaucoma Risk Factors")
         st.write("""
         Glaucoma mostly affects adults older than 40, but young adults, children, and even infants can have it. African Americans tend to get it more often, at a younger age, and with more vision loss.
+        Common Risk Factors include:
+
+         Black Ancestry
+
+         Age ≥ 60yrs
+
+         Family Record of Glaucoma or other ocular conditions
+
+         Diabetic Patient
+
+         Cornea being thinner than normal 
+
+         High Blood Pressure or Sickle Cell Anaemia
+        
+        """)
+        
+    elif choice == "Treatment":
+        st.header("Treatment")
+        st.write("""
+        Possible therapeutic remedies may include:
+        
+        Medicinal therapy
+        
+        Laser therapy
+        
+        Surgical interventions
         """)
 
 def save_patient_data(data, file_path):
@@ -192,10 +270,6 @@ def results():
                 flex-direction: column;
                 align-items: center;
             }
-            .image-container {
-                display: flex;
-                justify-content: center;
-            }
             .button-container {
                 display: flex;
                 justify-content: space-around;
@@ -212,11 +286,46 @@ def results():
                 margin: 10px;
                 flex: 1;
             }
+            .norm-container {
+                display: flex;
+                justify-content: center;
+                margin-top: 20px;
+            }
+            .glac-container {
+                display: flex;
+                justify-content: center;
+                margin-top: 20px;
+            }
+            .Normal-unclickable-button {
+                display: inline-block;
+                padding: 10px 20px;
+                font-size: 20px;
+                color: white;
+                background-color: blue;
+                border: none;
+                border-radius: 5px;
+                text-align: center;
+                text-decoration: none;
+                cursor: default;
+                margin-top: 20px;
+            }
+            .Glaucoma-unclickable-button {
+                display: inline-block;
+                padding: 10px 20px;
+                font-size: 20px;
+                color: white;
+                background-color: red;
+                border: none;
+                border-radius: 5px;
+                text-align: center;
+                text-decoration: none;
+                cursor: default;
+                margin-top: 20px;
+            }
             </style>
             """,
             unsafe_allow_html=True
         )
-
         st.markdown('<h1 class="centered-title">Glaucoma Detection System</h1>', unsafe_allow_html=True)
         st.write("<div class='custom-header'><i>Upload an image of the eye for glaucoma testing.</i></div>", unsafe_allow_html=True)
         uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
@@ -244,9 +353,17 @@ def results():
                     st.write('</div>', unsafe_allow_html=True)
 
                     if prediction_label == "Normal":
-                        st.markdown('<h1 class="Normal-title" style="color: blue;">Congratulations, No Glaucoma detected!</h1>', unsafe_allow_html=True)
+                        st.markdown("""
+                            <div class="norm-container">
+                                <div class="Normal-unclickable-button">Congratulations, No Glaucoma detected!</div>
+                            </div>
+                        """, unsafe_allow_html=True)
                     else:
-                        st.markdown('<h1 class="Glaucoma-title" style="color: red;">Glaucoma detected, Consult Opthalmologist!</h1>', unsafe_allow_html=True)
+                        st.markdown("""
+                            <div class="glac-container">
+                                <div class="Glaucoma-unclickable-button">Glaucoma detected, consult opthalmologist!</div>
+                            </div>
+                        """, unsafe_allow_html=True)
                     
                     if os.path.isfile(file_path):
                         df = load_patient_data(file_path)
