@@ -56,19 +56,31 @@ def password_check():
             100% { opacity: 0; }
         }
         </style>
-        <div class="welcome-text">WELCOME TO ME-CURE DIAGNOSTIC CENTER</div>
+        <div class="welcome-text">WELCOME TO VICBOR DIAGNOSTIC CENTER</div>
         """
     st.markdown(animated_text, unsafe_allow_html=True)  
-    password = st.text_input("Enter Password", type="password", key="unique_password_input")
+   
+    data = {
+    "VBH/OD/705": "Doctor@12",
+    "VBH/OD/743": "Nurse@12",
+    "VBH/OD/547": "Health@12",
+    }
 
-    if st.button("Submit", key="unique_submit_button"):
-        if password == "12345":  
-            st.session_state["password_entered"] = True
-            st.session_state["password_correct"] = True
-            st.success("Password Correct")
-        else:
-            st.session_state["password_correct"] = False
-            st.error("Password Incorrect")
+    user_name = st.text_input("Username",key="username_key")
+    pass_word = st.text_input("Password",type="password", key="password_key")
+
+    submit_button = st.button('Submit',key="Submit_button_key")
+
+    for Key,val in data.items():
+        if submit_button:
+            if user_name == Key and pass_word == val:
+                st.session_state["password_entered"] = True
+                st.session_state["password_correct"] = True
+                st.success("Password Correct")
+                break
+            else:
+                st.session_state["password_correct"] = False
+                st.error("Password Incorrect")
 
 def home():
     set_background("eye_check.jpg") 
@@ -203,7 +215,7 @@ def patient_info():
     patient_name = st.text_input("Patient Name", key="unique_patient_name_input")
     age = st.number_input("Age", min_value=0, max_value=120, step=1, key="unique_age_input")
     last_eye_check = st.date_input("Last Eye Check", key="unique_last_eye_check_input")
-    family_history = st.text_area("Family Disorder", placeholder="e.g., Glaucoma, Diabetes, Hypertension", key="unique_family_history_input")
+    family_history = st.text_area("Family Disorder, if any", placeholder="e.g., Glaucoma, Diabetes, Hypertension", key="unique_family_history_input")
     symptoms = st.text_area("Symptoms", placeholder="e.g., Blurred vision, Eye pain, Headaches", key="unique_symptoms_input")
 
     if st.button("Submit Information", key="unique_submit_info_button"):
