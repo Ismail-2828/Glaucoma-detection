@@ -80,7 +80,8 @@ def password_check():
                 break
             else:
                 st.session_state["password_correct"] = False
-                st.error("Password Incorrect")
+                st.error("Password/Username Incorrect")
+                st.write("Please enter recognised Username and Password!")
                 break
 
 def home():
